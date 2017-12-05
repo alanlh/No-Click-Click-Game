@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">FinalProject</string>
+    <string name="app_name">The No-Click\nClick Game</string>
+
+    <string name="play_game_button_text">Play Game</string>
+    <string name="stats_button_text">Stats</string>
+    <string name="leaderboard_button_text">Leaderboard</string>
 </resources>
