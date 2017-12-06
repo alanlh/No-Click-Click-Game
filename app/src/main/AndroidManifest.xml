@@ -18,6 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ButtonsActivity">
+        </activity>
+        <activity android:name=".StatsActivity">
+        </activity>
+        <activity android:name=".LeaderboardActivity">
+        </activity>
+        <activity android:name=".GameButton">
+        </activity>
     </application>
 
 </manifest>

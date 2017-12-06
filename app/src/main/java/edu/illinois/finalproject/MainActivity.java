@@ -1,5 +1,7 @@
 package edu.illinois.finalproject;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +10,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
   
-  private static final String APP_NAME = "No-Click Click Game";
+  static final String APP_NAME = "No-Click Click Game";
   private static final String FIRST_RUN_KEY = "Obviously Not";
   
   final SharedPreferences localData = getSharedPreferences(APP_NAME, MODE_PRIVATE);
@@ -22,9 +24,9 @@ public class MainActivity extends AppCompatActivity {
       // TODO: Initialize stuff for new users
     }
     
-    Button mPlayButton = (Button) findViewById(R.id.play_button_view);
-    Button mStatsButton = (Button) findViewById(R.id.stats_button_view);
-    Button mLeaderboardButton = (Button) findViewById(R.id.leaderboard_button_view);
+    Button mPlayButton = (Button) findViewById(R.id.main_button_play);
+    Button mStatsButton = (Button) findViewById(R.id.main_btn_stats);
+    Button mLeaderboardButton = (Button) findViewById(R.id.main_btn_leaderboard);
     
     mPlayButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -53,15 +55,25 @@ public class MainActivity extends AppCompatActivity {
     return !localData.contains(FIRST_RUN_KEY);
   }
   
+  
   private void goToPlayActivity() {
-    // TODO: Create intent to Play activity
+    final Context context = MainActivity.this;
+    Intent statsActivityIntent = new Intent(context, ButtonsActivity.class);
+    
+    context.startActivity(statsActivityIntent);
   }
   
   private void goToStatsActivity() {
-    // TODO: Create intent to Stats activity
+    final Context context = MainActivity.this;
+    Intent statsActivityIntent = new Intent(context, StatsActivity.class);
+  
+    context.startActivity(statsActivityIntent);
   }
   
   private void goToLeaderboardActivity() {
-    // TODO: Create intent to Leaderboard Activity
+    final Context context = MainActivity.this;
+    Intent statsActivityIntent = new Intent(context, LeaderboardActivity.class);
+  
+    context.startActivity(statsActivityIntent);
   }
 }
