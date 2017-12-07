@@ -43,9 +43,6 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
     long buttonTime = calculateButtonTime(position);
-  
-    Button button = holder.mGameButton;
-    Log.d("BUTTON TIME", String.valueOf(buttonTime));
     
     holder.mGameButton.setText(String.valueOf(buttonTime));
     

@@ -21,13 +21,13 @@ public class ButtonsActivity extends AppCompatActivity {
     
     // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using
     // -recyclerview-with-gridlayoutmanager-like-the
-    final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.buttons_recycler);
-    recyclerView.setLayoutManager(new GridLayoutManager(this, determineRowLength()));
-    //TODO: FIX THIS
+    final RecyclerView buttonsRecycler = (RecyclerView) findViewById(R.id.buttons_recycler);
+    buttonsRecycler.setLayoutManager(new GridLayoutManager(this, determineRowLength()));
+    
     long[] gameButtons = getButtonInformation();
     
     ButtonAdapter buttonAdapter = new ButtonAdapter(this, gameButtons);
-    recyclerView.setAdapter(buttonAdapter);
+    buttonsRecycler.setAdapter(buttonAdapter);
   }
   
   private long[] getButtonInformation() {
@@ -37,8 +37,8 @@ public class ButtonsActivity extends AppCompatActivity {
     
     // Yes I know this is a magic number. Promise won't be here on final app.
     long[] buttonRecentTimeStamps = new long[100];
-    for (long timeStamp : buttonRecentTimeStamps) {
-      timeStamp = 5;
+    for (int i = 0; i < buttonRecentTimeStamps.length; i ++) {
+      buttonRecentTimeStamps[i] = 5;
     }
     
     return buttonRecentTimeStamps;

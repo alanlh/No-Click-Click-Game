@@ -8,4 +8,5 @@
     <string name="total_points_value">Total Points: %1$s</string>
     <string name="number_clicks_count">Number of Clicks: %1$s</string>
     <string name="average_click_value">Average Click Value: %1$s</string>
+    <string name="title_activity_change_username">changeUsername</string>
 </resources>

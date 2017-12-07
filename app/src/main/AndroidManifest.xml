@@ -24,6 +24,15 @@
         </activity>
         <activity android:name=".LeaderboardActivity">
         </activity>
+        <activity
+            android:name=".ChangeUsernameFragment"
+            android:label="@string/title_activity_change_username"
+            android:parentActivityName=".StatsActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.illinois.finalproject.StatsActivity"/>
+        </activity>
     </application>
 
 </manifest>

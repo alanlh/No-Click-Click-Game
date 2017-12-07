@@ -1,6 +1,10 @@
 package edu.illinois.finalproject;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -32,7 +36,8 @@ public class StatsActivity extends AppCompatActivity {
     mChangeUsernameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        // TODO: Fragment allowing user to set username
+        DialogFragment newFragment = new ChangeUsernameFragment();
+        newFragment.show(getSupportFragmentManager(), "Change Username");
       }
     });
   }
