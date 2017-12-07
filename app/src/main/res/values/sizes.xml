@@ -3,4 +3,7 @@
     <dimen name="menu_button_padding">20dp</dimen>
     <dimen name="menu_button_text_size">24sp</dimen>
 
+    <dimen name="game_button_padding">20dp</dimen>
+
+
 </resources>

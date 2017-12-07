@@ -4,4 +4,8 @@
     <string name="play_game_button_text">Play Game</string>
     <string name="stats_button_text">Stats</string>
     <string name="leaderboard_button_text">Leaderboard</string>
+
+    <string name="total_points_value">Total Points: %1$s</string>
+    <string name="number_clicks_count">Number of Clicks: %1$s</string>
+    <string name="average_click_value">Average Click Value: %1$s</string>
 </resources>

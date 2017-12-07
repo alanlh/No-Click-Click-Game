@@ -1,6 +1,8 @@
 package edu.illinois.finalproject;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +17,14 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using-
   // recyclerview-with-gridlayoutmanager-like-the
   
+  // Will remove if never used.
+  private Context context;
   private long[] buttonTimeClicked;
   
   // TODO: Use NotifyItemChanged to update individual buttons
   
-  
-  public ButtonAdapter(long[] buttonTimeClicked) {
+  public ButtonAdapter(Context context, long[] buttonTimeClicked) {
+    this.context = context;
     this.buttonTimeClicked = buttonTimeClicked;
   }
   
@@ -31,15 +35,19 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   
   @Override
   public ButtonAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View gameButtonView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+    View gameButtonView = LayoutInflater.from(context).inflate(viewType, parent, false);
     
     return new ViewHolder(gameButtonView);
   }
   
   @Override
-  public void onBindViewHolder(ButtonAdapter.ViewHolder holder, int position) {
-    int buttonTime = calculateButtonTime(position);
-    holder.mGameButton.setText(buttonTime);
+  public void onBindViewHolder(ViewHolder holder, int position) {
+    long buttonTime = calculateButtonTime(position);
+  
+    Button button = holder.mGameButton;
+    Log.d("BUTTON TIME", String.valueOf(buttonTime));
+    
+    holder.mGameButton.setText(String.valueOf(buttonTime));
     
     holder.mGameButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -55,10 +63,10 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     return buttonTimeClicked.length;
   }
   
-  private int calculateButtonTime(int position) {
+  private long calculateButtonTime(int position) {
     // TODO:
     
-    return 0;
+    return buttonTimeClicked[position];
   }
   
   private void startButtonClickProcess() {

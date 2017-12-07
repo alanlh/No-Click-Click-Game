@@ -13,12 +13,14 @@ public class MainActivity extends AppCompatActivity {
   static final String APP_NAME = "No-Click Click Game";
   private static final String FIRST_RUN_KEY = "Obviously Not";
   
-  final SharedPreferences localData = getSharedPreferences(APP_NAME, MODE_PRIVATE);
+  SharedPreferences localData;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    
+    localData = getSharedPreferences(APP_NAME, MODE_PRIVATE);
     
     if (isNewUser()) {
       // TODO: Initialize stuff for new users
