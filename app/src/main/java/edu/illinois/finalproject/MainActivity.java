@@ -23,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
     localData = getSharedPreferences(APP_NAME, MODE_PRIVATE);
     
     if (isNewUser()) {
-      // TODO: Initialize stuff for new users
+      localData.getBoolean(FIRST_RUN_KEY, true);
+      setUpNewUser();
     }
     
     Button mPlayButton = (Button) findViewById(R.id.main_button_play);
@@ -57,12 +58,16 @@ public class MainActivity extends AppCompatActivity {
     return !localData.contains(FIRST_RUN_KEY);
   }
   
+  private void setUpNewUser() {
+    // TODO: Save data to localData, creates new
+  }
+  
   
   private void goToPlayActivity() {
     final Context context = MainActivity.this;
-    Intent statsActivityIntent = new Intent(context, ButtonsActivity.class);
+    Intent playActivityIntent = new Intent(context, ButtonsActivity.class);
     
-    context.startActivity(statsActivityIntent);
+    context.startActivity(playActivityIntent);
   }
   
   private void goToStatsActivity() {
@@ -74,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
   
   private void goToLeaderboardActivity() {
     final Context context = MainActivity.this;
-    Intent statsActivityIntent = new Intent(context, LeaderboardActivity.class);
+    Intent leaderboardActivityIntent = new Intent(context, LeaderboardActivity.class);
   
-    context.startActivity(statsActivityIntent);
+    context.startActivity(leaderboardActivityIntent);
   }
 }
