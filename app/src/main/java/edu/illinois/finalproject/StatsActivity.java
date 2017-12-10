@@ -28,7 +28,7 @@ public class StatsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_stats);
   
-    localData = getSharedPreferences(MainActivity.APP_NAME, MODE_PRIVATE);
+    localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
     
     setTextViews();
   
@@ -56,29 +56,16 @@ public class StatsActivity extends AppCompatActivity {
     long totalPoints = localData.getLong(TOTAL_POINTS_STORE_KEY, DEFAULT_POINTS);
     TextView mTotalPointsTextView = (TextView) findViewById(R.id.stats_tv_total_points);
     mTotalPointsTextView.setText(getResources()
-      .getString(R.string.total_points_value, formatValues(totalPoints)));
+      .getString(R.string.total_points_value, NumberFormatter.formatNumber(totalPoints)));
   
     long clickCount = localData.getLong(CLICK_COUNT_STORE_KEY, DEFAULT_POINTS);
     TextView mClickCountTextView = (TextView) findViewById(R.id.stats_tv_click_count);
     mClickCountTextView.setText(getResources()
-      .getString(R.string.number_clicks_count, formatValues(clickCount)));
+      .getString(R.string.number_clicks_count, NumberFormatter.formatNumber(clickCount)));
   
     long avgPoints = localData.getLong(AVG_POINTS_STORE_KEY, DEFAULT_POINTS);
     TextView mAvgClickPointsTextView = (TextView) findViewById(R.id.stats_tv_avg_pts);
     mAvgClickPointsTextView.setText(getResources()
-      .getString(R.string.average_click_value, formatValues(avgPoints)));
-  }
-  
-  /**
-   * Reformats the number to a more concise format, especially for larger numbers. Cuts down on
-   * decimal points that may occur. Converts final result to a string.
-   *
-   * // TODO: IMPLEMENT METHOD
-   *
-   * @param score The score to be formatted.
-   * @return The resulting string.
-   */
-  private String formatValues(long score) {
-    return String.valueOf(score);
+      .getString(R.string.average_click_value, NumberFormatter.formatNumber(avgPoints)));
   }
 }

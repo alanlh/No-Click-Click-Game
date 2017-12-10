@@ -11,6 +11,8 @@ import android.view.WindowManager;
 
 public class ButtonsActivity extends AppCompatActivity {
   
+  static final int NUMBER_OF_BUTTONS = 100;
+  
   private final int ROW_LENGTH_PORTRAIT = 2;
   private final int ROW_LENGTH_LANDSCAPE = 5;
   
