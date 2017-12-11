@@ -15,13 +15,40 @@ public class NumberFormatter {
   /**
    * Reformats the number to a more concise format, especially for larger numbers. Cuts down on
    * decimal points that may occur. Converts final result to a string.
-   *
+   * <p>
    * // TODO: IMPLEMENT METHOD
    *
    * @param value The score to be formatted.
    * @return The resulting string.
    */
   public static String formatNumber(long value) {
+    return null;
+  }
+  
+  /**
+   * Reformats the number to a more concise format, especially for larger numbers. Cuts down on
+   * decimal points that may occur. Converts final result to a string.
+   *
+   * For doubles,
+   * <p>
+   * // TODO: IMPLEMENT METHOD
+   *
+   * @param value The score to be formatted.
+   * @return The resulting string.
+   */
+  public static String formatNumber(double value) {
+    return null;
+  }
+  
+  
+  /**
+   * Reformats the time, given in seconds, into a readable format, e.g. 25 min., and returns it as
+   * a string.
+   *
+   * @param time the
+   * @return a String displaying the time in minutes
+   */
+  public static String formatTime(long time) {
     return null;
   }
   
