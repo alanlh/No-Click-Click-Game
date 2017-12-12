@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
   private final int DEFAULT_STARTING_COUNTS = 0;
   
   SharedPreferences localData;
-  final FirebaseDatabase DATABASE = FirebaseDatabase.getInstance();
+  static final FirebaseDatabase DATABASE = FirebaseDatabase.getInstance();
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {

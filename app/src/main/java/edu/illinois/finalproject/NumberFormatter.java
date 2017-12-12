@@ -6,38 +6,49 @@ package edu.illinois.finalproject;
 
 public class NumberFormatter {
   
-  private static final String KILO_SUFFIX = "K";
-  private static final String MILLION_SUFFIX = "M";
-  private static final String BILLION_SUFFIX = "B";
-  private static final String TRILLION_SUFFIX = "T";
+  private static final String[] SUFFIX_ARRAY = {"", "K", "M", "B", "T"};
   // I highly doubt anyone will get a quadrillion points.
+  // Stored as array for easier access
+  
+  private static final int SUFFIX_RATIO = 1000;
+  private static final double EPSILON = 0.0001;
   
   /**
    * Reformats the number to a more concise format, especially for larger numbers. Cuts down on
    * decimal points that may occur. Converts final result to a string.
-   * <p>
-   * // TODO: IMPLEMENT METHOD
+   *
+   * Wrapper method: Converts the long into a double before calling the double version of the
+   * same method.
    *
    * @param value The score to be formatted.
    * @return The resulting string.
    */
   public static String formatNumber(long value) {
-    return null;
+    double valueDouble = (double) value;
+    return formatNumber(valueDouble);
   }
   
   /**
    * Reformats the number to a more concise format, especially for larger numbers. Cuts down on
    * decimal points that may occur. Converts final result to a string.
    *
-   * For doubles,
-   * <p>
-   * // TODO: IMPLEMENT METHOD
+   * For doubles, converts into a long
    *
    * @param value The score to be formatted.
    * @return The resulting string.
    */
   public static String formatNumber(double value) {
-    return null;
+    int suffixCounter = 0;
+    if (value < SUFFIX_RATIO && value - Math.floor(value) < EPSILON) {
+//      int roundedValue
+      return String.valueOf(value);
+    }
+    return String.valueOf(value);
+  
+//    while (value > SUFFIX_RATIO) {
+//      suffixCounter ++;
+//      value /= SUFFIX_RATIO;
+//    }
   }
   
   

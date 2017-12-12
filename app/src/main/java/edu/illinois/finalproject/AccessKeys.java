@@ -2,7 +2,7 @@ package edu.illinois.finalproject;
 
 /**
  * Created by Alan Hu on 12/9/2017.
- * <p>
+ *
  * This class contains the keys of most SharedPreferences values and Firebase database locations.
  * A new class is used to keep track of strings more easily, avoid accidental duplicates, and
  * maintain consistency. Other widely used strings (namely, the app name) are stored here as well.
@@ -24,6 +24,10 @@ public class AccessKeys {
   private static final String BUTTON_LIST_REF = "Button List";
   private static final String BUTTON_I_REF = "Button ";
   private static final String USER_LIST_REF = "User List";
+  private static final String TOTAL_SCORE_REF = "totalPoints";
+  private static final String CLICK_COUNT_REF = "clickCount";
+  private static final String LAST_CLICK_REF = "lastClickTime";
+  private static final String USERNAME_REF = "username";
   
   public static String getAppName() {
     return APP_NAME;
@@ -66,5 +70,21 @@ public class AccessKeys {
   
   public static String getUserListRef() {
     return USER_LIST_REF;
+  }
+  
+  public static String getTotalScoreRef() {
+    return TOTAL_SCORE_REF;
+  }
+  
+  public static String getClickCountRef() {
+    return CLICK_COUNT_REF;
+  }
+  
+  public static String getLastClickRef() {
+    return LAST_CLICK_REF;
+  }
+  
+  public static String getUsernameRef() {
+    return USERNAME_REF;
   }
 }
