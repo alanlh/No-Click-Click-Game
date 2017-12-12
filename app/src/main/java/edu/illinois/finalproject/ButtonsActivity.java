@@ -57,15 +57,16 @@ public class ButtonsActivity extends AppCompatActivity {
   }
   
   @Override
-  protected void onPause() {
-    super.onPause();
-    stopButtonIncrement();
-  }
-  
-  @Override
   protected void onResume() {
     super.onResume();
     getInitialButtonInformation();
+    startButtonIncrement();
+  }
+  
+  @Override
+  protected void onPause() {
+    super.onPause();
+    stopButtonIncrement();
   }
   
   /**
@@ -154,13 +155,20 @@ public class ButtonsActivity extends AppCompatActivity {
    */
   private void startButtonIncrement() {
     stopwatchThread = new Thread() {
+      Runnable incrementAllButtons = new Runnable() {
+        @Override
+        public void run() {
+          buttonAdapter.incrementAllButtons();
+          buttonAdapter.notifyDataSetChanged();
+        }
+      };
+      
       @Override
       public void run() {
         try {
           while (!this.isInterrupted()) {
             Thread.sleep(MILLI_PER_SEC);
-            buttonAdapter.incrementAllButtons();
-            buttonAdapter.notifyDataSetChanged();
+            runOnUiThread(incrementAllButtons);
           }
         } catch (InterruptedException e) {
           
@@ -201,8 +209,8 @@ public class ButtonsActivity extends AppCompatActivity {
     long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
     
     if (clickAvailable()) {
+      evaluatePoints(pressTime, position); // TODO: Create timer instead, and put date back first
       addDateToButton(pressTime, position);
-      evaluatePoints(pressTime, position);
     }
 //    cannotClickMessage();
   }
@@ -218,29 +226,28 @@ public class ButtonsActivity extends AppCompatActivity {
   }
   
   /**
-   * Adds a date object to the button.
+   * Adds the current time to the button.
    *
    * @param time     The time stamp to be added to the button
-   * @param position
+   * @param position The button to which the timestamp is to be added
    */
   public void addDateToButton(long time, int position) {
     DatabaseReference buttonRef = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
       .child(AccessKeys.getButtonIRef() + position);
-    Date currentTime = new Date();
-    buttonRef.push().setValue(currentTime);
+    buttonRef.push().setValue(time);
   }
   
-  long evaluatePoints(final long pressTime, int position) {
+  void evaluatePoints(final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
       .child(AccessKeys.getButtonIRef() + position).orderByValue()
-      .limitToLast(TIMESTAMPS_TO_ACCESS);
+      .limitToLast(1);
 
     LAST_TIME_QUERY.addListenerForSingleValueEvent(new ValueEventListener() {
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
         long lastClickTime = 0;
         for (DataSnapshot timeSnapshot : dataSnapshot.getChildren()) {
-          lastClickTime = timeSnapshot.child(AccessKeys.getLastClickRef()).getValue(Long.class);
+          lastClickTime = timeSnapshot.getValue(Long.class);
         }
       
         long timeDifference = buttonAdapter.calculateButtonTime(lastClickTime, pressTime);
@@ -254,9 +261,6 @@ public class ButtonsActivity extends AppCompatActivity {
       
       }
     });
-  
-  
-    return buttonAdapter.calculateButtonTime(pressTime);
   }
   
   /**
@@ -277,11 +281,11 @@ public class ButtonsActivity extends AppCompatActivity {
     editor.putLong(AccessKeys.getTotalScoreKey(), currentPoints);
     editor.putLong(AccessKeys.getClickCountKey(), currentClickCount);
     editor.putLong(AccessKeys.getLastClickKey(), pressTime);
+    editor.apply();
     
+    String userId = localData.getString(AccessKeys.getUserFirebaseKey(), null);
     DatabaseReference userPointRef
-      = MainActivity.DATABASE.getReference(AccessKeys.getUserListRef());
-    userPointRef.child(AccessKeys.getLastClickKey()).setValue(pressTime);
-    
+      = MainActivity.DATABASE.getReference(AccessKeys.getUserListRef()).child(userId);
     userPointRef.child(AccessKeys.getTotalScoreRef()).setValue(currentPoints);
     userPointRef.child(AccessKeys.getClickCountRef()).setValue(currentClickCount);
     userPointRef.child(AccessKeys.getLastClickRef()).setValue(pressTime);
