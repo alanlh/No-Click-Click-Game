@@ -25,7 +25,7 @@
         <activity android:name=".LeaderboardActivity">
         </activity>
         <activity
-            android:name=".ChangeUsernameFragment"
+            android:name=".ChangeUsernameDialog"
             android:label="@string/title_activity_change_username"
             android:parentActivityName=".StatsActivity"
             android:theme="@style/AppTheme">

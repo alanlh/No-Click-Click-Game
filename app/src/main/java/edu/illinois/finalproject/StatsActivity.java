@@ -28,7 +28,7 @@ public class StatsActivity extends AppCompatActivity {
     mChangeUsernameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        DialogFragment newFragment = new ChangeUsernameFragment();
+        DialogFragment newFragment = new ChangeUsernameDialog();
         newFragment.show(getSupportFragmentManager(), "Change Username");
       }
     });
@@ -59,7 +59,10 @@ public class StatsActivity extends AppCompatActivity {
       .getString(R.string.average_click_value, NumberFormatter.formatNumber(avgPoints)));
   }
   
-  double computeAveragePointsDouble(long totalPoints, long clickCount) {
+  static double computeAveragePointsDouble(long totalPoints, long clickCount) {
+    if (clickCount == 0) {
+      return 0;
+    }
     return (double) totalPoints / (double) clickCount;
   }
 }

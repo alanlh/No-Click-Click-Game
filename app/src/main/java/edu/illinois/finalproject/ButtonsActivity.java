@@ -208,7 +208,7 @@ public class ButtonsActivity extends AppCompatActivity {
   void startButtonClickProcess(int position) {
     long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
     
-    if (clickAvailable()) {
+    if (clickAvailable(pressTime)) {
       evaluatePoints(pressTime, position); // TODO: Create timer instead, and put date back first
       addDateToButton(pressTime, position);
     }
@@ -219,9 +219,11 @@ public class ButtonsActivity extends AppCompatActivity {
    * Determines whether or not the player can click again by determining if there's a thirty
    * minute difference between the last click and now.
    *
+   * @param pressTime The time at which the user pressed the button.
    * @return whether or not the click is valid
    */
-  boolean clickAvailable() {
+  boolean clickAvailable(long pressTime) {
+    
     return true;
   }
   
@@ -289,5 +291,7 @@ public class ButtonsActivity extends AppCompatActivity {
     userPointRef.child(AccessKeys.getTotalScoreRef()).setValue(currentPoints);
     userPointRef.child(AccessKeys.getClickCountRef()).setValue(currentClickCount);
     userPointRef.child(AccessKeys.getLastClickRef()).setValue(pressTime);
+    userPointRef.child(AccessKeys.getAverageScoreRef())
+      .setValue(StatsActivity.computeAveragePointsDouble(currentPoints, currentClickCount));
   }
 }

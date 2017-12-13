@@ -12,7 +12,7 @@ public class AccessKeys {
   
   private static final String APP_NAME = "No-Click Click Game";
   
-  // Keys used for ShardPreferences
+  // Keys used for SharedPreferences
   private static final String FIRST_RUN_KEY = "Obviously Not";
   private static final String USER_FIREBASE_KEY = "User Firebase Key";
   private static final String USERNAME_KEY = "Username Key";
@@ -28,6 +28,7 @@ public class AccessKeys {
   private static final String CLICK_COUNT_REF = "clickCount";
   private static final String LAST_CLICK_REF = "lastClickTime";
   private static final String USERNAME_REF = "username";
+  private static final String AVERAGE_SCORE_REF = "averagePoints";
   
   public static String getAppName() {
     return APP_NAME;
@@ -86,5 +87,9 @@ public class AccessKeys {
   
   public static String getUsernameRef() {
     return USERNAME_REF;
+  }
+  
+  public static String getAverageScoreRef() {
+    return AVERAGE_SCORE_REF;
   }
 }
