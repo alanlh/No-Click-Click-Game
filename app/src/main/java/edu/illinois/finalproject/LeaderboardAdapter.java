@@ -47,7 +47,6 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     for (int i = 0; i < NUMBER_OF_LEADERBOARDS; i++) {
       LEADERBOARD_TITLE_INDICES[i] = indexCounter;
       indexCounter += LEADERBOARD_SIZE + 1;
-      Log.d("DATASNAPSHOT", String.valueOf(indexCounter));
     }
   }
   
@@ -61,7 +60,6 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
     // For appropriate indexes, should display title instead of score.
-    Log.d("DATASNAPSHOT", "On Bind View Holder " + position);
     for (int i = 0; i < LEADERBOARD_TITLE_INDICES.length; i++) {
       if (position == LEADERBOARD_TITLE_INDICES[i]) { // Must be a title
         setTitleFormat(holder, i);
@@ -96,14 +94,12 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
   private void setTitleFormat(LeaderboardAdapter.ViewHolder holder, int titleIndex) {
     holder.mRank.setText(" ");
     holder.mTitle.setText(LEADERBOARD_TITLES[titleIndex]);
-//    holder.mTitle.setTextSize(R.dimen.leaderboard_title_text_size);
     holder.mTitle.setTypeface(Typeface.SERIF, Typeface.BOLD);
     holder.mValue.setText(" ");
   }
   
   private void formatTopScore(LeaderboardAdapter.ViewHolder holder, int position,
                               int titlePosition, String scoreType) {
-    Log.d("DATASNAPSHOT", "Reach FormatTopScore");
     int rank = position - titlePosition;
     int rankIndex = rank - 1;
     holder.mRank.setText(String.valueOf(rank));
@@ -117,14 +113,9 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
       holder.mValue.setText(formattedScore);
             
     } else if (scoreType.equals(AccessKeys.getAverageScoreRef())) {
-      Log.d("DATASNAPSHOT", "Reach AverageScore");
-  
       String username = topAvgScores[rankIndex].getUsername();
       String formattedScore = NumberFormatter.formatNumber(topAvgScores[rankIndex]
         .getAveragePoints());
-  
-      Log.d("DATASNAPSHOT", username + " " + formattedScore);
-  
   
       holder.mTitle.setText(username);
       holder.mValue.setText(formattedScore);

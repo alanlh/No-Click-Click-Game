@@ -11,7 +11,7 @@ import android.widget.TextView;
 public class StatsActivity extends AppCompatActivity {
   
   SharedPreferences localData;
-
+  
   private static final String DEFAULT_USERNAME = "Guest";
   private static final long DEFAULT_POINTS_LONG = 0;
   
@@ -19,11 +19,10 @@ public class StatsActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_stats);
-  
-    localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
     
+    localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
     setTextViews();
-  
+    
     Button mChangeUsernameButton = (Button) findViewById(R.id.stats_btn_change_username);
     mChangeUsernameButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -36,7 +35,8 @@ public class StatsActivity extends AppCompatActivity {
   
   /**
    * Sets all TextViews in the Stats activity. Note: Player's point values are also stored
-   * locally. This way, user can still access statistics when not using internet.
+   * locally. This way, user can still access statistics when not using internet. Done so in
+   * onResume rather than onCreate because of the change username dialog.
    */
   private void setTextViews() {
     // Sets username
@@ -44,7 +44,7 @@ public class StatsActivity extends AppCompatActivity {
     long totalPoints = localData.getLong(AccessKeys.getTotalScoreKey(), DEFAULT_POINTS_LONG);
     long clickCount = localData.getLong(AccessKeys.getClickCountKey(), DEFAULT_POINTS_LONG);
     double avgPoints = computeAveragePointsDouble(totalPoints, clickCount);
-  
+    
     TextView mUsernameTextView = (TextView) findViewById(R.id.stats_tv_username);
     TextView mTotalPointsTextView = (TextView) findViewById(R.id.stats_tv_total_points);
     TextView mClickCountTextView = (TextView) findViewById(R.id.stats_tv_click_count);
@@ -59,10 +59,29 @@ public class StatsActivity extends AppCompatActivity {
       .getString(R.string.average_click_value, NumberFormatter.formatNumber(avgPoints)));
   }
   
+  /**
+   * Computes the average points using total points and click count using stored
+   * SharedPreferences data. Thus does not require internet to access.
+   *
+   * @param totalPoints The user's total points, as stored in SharedPreferences
+   * @param clickCount  The user's total click count, as stored in SharedPreferences
+   * @return The average points per click. Returns 0 if no clicks yet.
+   */
   static double computeAveragePointsDouble(long totalPoints, long clickCount) {
     if (clickCount == 0) {
       return 0;
     }
     return (double) totalPoints / (double) clickCount;
+  }
+  
+  /**
+   * Resets the username in the Statistics activity. Called after changing it in the change
+   * username dialog.
+   *
+   * @param newUsername The user's new username.
+   */
+  void refreshUsernameTextView(String newUsername) {
+    TextView mUsernameTextView = (TextView) findViewById(R.id.stats_tv_username);
+    mUsernameTextView.setText(newUsername);
   }
 }
