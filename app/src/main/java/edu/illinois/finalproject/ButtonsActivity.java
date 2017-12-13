@@ -1,14 +1,20 @@
 package edu.illinois.finalproject;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -18,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 import java.util.Date;
 
 public class ButtonsActivity extends AppCompatActivity {
@@ -25,6 +33,7 @@ public class ButtonsActivity extends AppCompatActivity {
   private static final int NUMBER_OF_BUTTONS = 100;
   private final int MILLI_PER_SEC = 1000;
   private final double MILLI_TO_SEC = 0.001;
+  private final int TIME_BETWEEN_CLICK_MILLI = 1800000;
   private final int ROW_LENGTH_PORTRAIT = 2;
   private final int ROW_LENGTH_LANDSCAPE = 5;
   private final int DEFAULT_VALUE = 0;
@@ -37,6 +46,8 @@ public class ButtonsActivity extends AppCompatActivity {
   
   SharedPreferences localData;
   
+  private final int PENDING_INTENT_CODE = 0;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -46,6 +57,11 @@ public class ButtonsActivity extends AppCompatActivity {
     
     // TODO: Get Internet time, verify consistent with currentTime, record any inaccuracies, if
     // no internet display so at the front.
+  
+    TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
+    if (clickAvailable(new Date().getTime())) {
+      
+    }
     
     // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using
     // -recyclerview-with-gridlayoutmanager-like-the
@@ -75,7 +91,6 @@ public class ButtonsActivity extends AppCompatActivity {
    * in the button adapter.
    */
   private void getInitialButtonInformation() {
-    
     DatabaseReference buttonsListRef = MainActivity.DATABASE.getReference
       (AccessKeys.getButtonListRef());
     
@@ -171,7 +186,7 @@ public class ButtonsActivity extends AppCompatActivity {
             runOnUiThread(incrementAllButtons);
           }
         } catch (InterruptedException e) {
-          
+          // TODO: ERROR MESSAGE
         }
       }
     };
@@ -209,6 +224,7 @@ public class ButtonsActivity extends AppCompatActivity {
     long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
     
     if (clickAvailable(pressTime)) {
+      startNotificationProcess();
       evaluatePoints(pressTime, position); // TODO: Create timer instead, and put date back first
       addDateToButton(pressTime, position);
     }
@@ -219,12 +235,30 @@ public class ButtonsActivity extends AppCompatActivity {
    * Determines whether or not the player can click again by determining if there's a thirty
    * minute difference between the last click and now.
    *
+   * TODO: CHANGE THIS BACK
+   *
    * @param pressTime The time at which the user pressed the button.
    * @return whether or not the click is valid
    */
   boolean clickAvailable(long pressTime) {
+    long lastClickTime = localData.getLong(AccessKeys.getLastClickKey(), DEFAULT_VALUE);
     
+    long timeDifferenceMilli = pressTime - lastClickTime;
+//    return (timeDifferenceMilli > TIME_BETWEEN_CLICK_MILLI);
     return true;
+  }
+  
+  private void startNotificationProcess() {
+    Intent notificationIntent = new Intent(ButtonsActivity.this, ShowNotification.class);
+    
+    PendingIntent showNotificationIntent
+      = PendingIntent.getService(ButtonsActivity.this, PENDING_INTENT_CODE, notificationIntent,
+      PendingIntent.FLAG_CANCEL_CURRENT);
+  
+    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    alarmManager.cancel(showNotificationIntent);
+    alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()
+      + TIME_BETWEEN_CLICK_MILLI, showNotificationIntent);
   }
   
   /**
@@ -241,8 +275,7 @@ public class ButtonsActivity extends AppCompatActivity {
   
   void evaluatePoints(final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
-      .child(AccessKeys.getButtonIRef() + position).orderByValue()
-      .limitToLast(1);
+      .child(AccessKeys.getButtonIRef() + position).orderByValue().limitToLast(1);
 
     LAST_TIME_QUERY.addListenerForSingleValueEvent(new ValueEventListener() {
       @Override

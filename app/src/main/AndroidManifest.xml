@@ -3,6 +3,7 @@
           package="edu.illinois.finalproject">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -33,6 +34,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.illinois.finalproject.StatsActivity"/>
         </activity>
+
+        <service android:name="edu.illinois.finalproject.ShowNotification" >
+        </service>
+
     </application>
 
 </manifest>
