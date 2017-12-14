@@ -19,7 +19,6 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
@@ -31,20 +30,22 @@ public class ButtonsActivity extends AppCompatActivity {
   private static final int NUMBER_OF_BUTTONS = 100;
   private final int MILLI_PER_SEC = 1000;
   private final double MILLI_TO_SEC = 0.001;
-  private final int TIME_BETWEEN_CLICK_MILLI = 1800000;
   private final int ROW_LENGTH_PORTRAIT = 2;
   private final int ROW_LENGTH_LANDSCAPE = 5;
-  private final int DEFAULT_VALUE = 0;
   
-  private final int TIMESTAMPS_TO_ACCESS = 1;
+  private final int MOST_RECENT_TIMESTAMP_ACCESS = 1;
+  
+  private final String CLICK_AVAILABLE_MESSAGE = "Click!";
+  private final String RECENT_CLICK_FOUND = "It looks like you clicked recently. " +
+    "You must wait for %s.";
+  
+  private final int PENDING_INTENT_CODE = 0;
   
   private final ButtonAdapter buttonAdapter = new ButtonAdapter(this, this);
   
   private Thread stopwatchThread;
   
-  SharedPreferences localData;
-  
-  private final int PENDING_INTENT_CODE = 0;
+  static SharedPreferences localData;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +57,7 @@ public class ButtonsActivity extends AppCompatActivity {
     // TODO: Get Internet time, verify consistent with currentTime, record any inaccuracies, if
     // no internet display so at the front.
   
-    TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
-    if (clickAvailable(new Date().getTime())) {
-      
-    }
+    setMessageStatus();
     
     // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using
     // -recyclerview-with-gridlayoutmanager-like-the
@@ -84,6 +82,22 @@ public class ButtonsActivity extends AppCompatActivity {
   }
   
   /**
+   * Sets the message to be displayed at the top of the screen, depending on the last click time.
+   * If the user can click, then says so. Otherwise, states remaining time.
+   */
+  private void setMessageStatus() {
+    TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
+    long currentTime = new Date().getTime();
+    long remainingTime = GameLogic.remainingTimeUntilClick(currentTime);
+    if (remainingTime == GameLogic.CLICK_AVAILABLE_STATE) {
+      mStatusMessage.setText(CLICK_AVAILABLE_MESSAGE);
+    } else {
+      mStatusMessage.setText(String.format(RECENT_CLICK_FOUND,
+        NumberFormatter.formatTimeMinutes(remainingTime)));
+    }
+  }
+  
+  /**
    * Gets the initial set of button information using a SingleValueEvent listener for each button.
    * Gets the most recent timestamp on each button, and uses it to set the value of each button
    * in the button adapter.
@@ -100,7 +114,7 @@ public class ButtonsActivity extends AppCompatActivity {
       final int position = index;
       // Final because used in inner class.
       final Query LAST_TIMESTAMP_QUERY = individualButtonRef.orderByValue()
-        .limitToLast(TIMESTAMPS_TO_ACCESS);
+        .limitToLast(MOST_RECENT_TIMESTAMP_ACCESS);
       individualButtonRef.addListenerForSingleValueEvent(new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -218,111 +232,19 @@ public class ButtonsActivity extends AppCompatActivity {
     return ROW_LENGTH_LANDSCAPE;
   }
   
-  void startButtonClickProcess(int position) {
-    long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
-    
-    if (clickAvailable(pressTime)) {
-      startNotificationProcess();
-      evaluatePoints(pressTime, position); // TODO: Create timer instead, and put date back first
-      addDateToButton(pressTime, position);
-    }
-//    cannotClickMessage();
-  }
-  
   /**
-   * Determines whether or not the player can click again by determining if there's a thirty
-   * minute difference between the last click and now.
-   *
-   * TODO: CHANGE THIS BACK
-   *
-   * @param pressTime The time at which the user pressed the button.
-   * @return whether or not the click is valid
+   * Starts a notification to be shown when the user is allowed to click again.
    */
-  boolean clickAvailable(long pressTime) {
-    long lastClickTime = localData.getLong(AccessKeys.getLastClickKey(), DEFAULT_VALUE);
-    
-    long timeDifferenceMilli = pressTime - lastClickTime;
-//    return (timeDifferenceMilli > TIME_BETWEEN_CLICK_MILLI);
-    return true;
-  }
-  
-  private void startNotificationProcess() {
+  void startNotificationProcess() {
     Intent notificationIntent = new Intent(ButtonsActivity.this, ShowNotification.class);
     
     PendingIntent showNotificationIntent
-      = PendingIntent.getService(ButtonsActivity.this, PENDING_INTENT_CODE, notificationIntent,
+      = PendingIntent.getService(getApplicationContext(), PENDING_INTENT_CODE, notificationIntent,
       PendingIntent.FLAG_CANCEL_CURRENT);
-  
+    
     AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(showNotificationIntent);
     alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()
-      + TIME_BETWEEN_CLICK_MILLI, showNotificationIntent);
-  }
-  
-  /**
-   * Adds the current time to the button.
-   *
-   * @param time     The time stamp to be added to the button
-   * @param position The button to which the timestamp is to be added
-   */
-  public void addDateToButton(long time, int position) {
-    DatabaseReference buttonRef = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
-      .child(AccessKeys.getButtonIRef() + position);
-    buttonRef.push().setValue(time);
-  }
-  
-  void evaluatePoints(final long pressTime, int position) {
-    final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
-      .child(AccessKeys.getButtonIRef() + position).orderByValue().limitToLast(1);
-
-    LAST_TIME_QUERY.addListenerForSingleValueEvent(new ValueEventListener() {
-      @Override
-      public void onDataChange(DataSnapshot dataSnapshot) {
-        long lastClickTime = 0;
-        for (DataSnapshot timeSnapshot : dataSnapshot.getChildren()) {
-          lastClickTime = timeSnapshot.getValue(Long.class);
-        }
-      
-        long timeDifference = buttonAdapter.calculateButtonTime(lastClickTime, pressTime);
-        addPointsToPlayer(timeDifference, pressTime); // TODO: Change to creating a new thread
-        LAST_TIME_QUERY.removeEventListener(this);
-        // Only want events to trigger once.
-      }
-    
-      @Override
-      public void onCancelled(DatabaseError databaseError) {
-      
-      }
-    });
-  }
-  
-  /**
-   * Adds a number of points to the user, updating both the total points, click count, and last
-   * pressed values in SharedPreferences and Firebase.
-   *
-   * @param pointValue The number of points to be added
-   * @param pressTime  The time at which the user just pressed a button
-   */
-  private void addPointsToPlayer(long pointValue, long pressTime) {
-    long currentPoints = localData.getLong(AccessKeys.getTotalScoreKey(), DEFAULT_VALUE);
-    long currentClickCount = localData.getLong(AccessKeys.getClickCountKey(), DEFAULT_VALUE);
-    
-    currentPoints += pointValue;
-    currentClickCount++;
-    
-    SharedPreferences.Editor editor = localData.edit();
-    editor.putLong(AccessKeys.getTotalScoreKey(), currentPoints);
-    editor.putLong(AccessKeys.getClickCountKey(), currentClickCount);
-    editor.putLong(AccessKeys.getLastClickKey(), pressTime);
-    editor.apply();
-    
-    String userId = localData.getString(AccessKeys.getUserFirebaseKey(), null);
-    DatabaseReference userPointRef
-      = MainActivity.DATABASE.getReference(AccessKeys.getUserListRef()).child(userId);
-    userPointRef.child(AccessKeys.getTotalScoreRef()).setValue(currentPoints);
-    userPointRef.child(AccessKeys.getClickCountRef()).setValue(currentClickCount);
-    userPointRef.child(AccessKeys.getLastClickRef()).setValue(pressTime);
-    userPointRef.child(AccessKeys.getAverageScoreRef())
-      .setValue(StatsActivity.computeAveragePointsDouble(currentPoints, currentClickCount));
+      + GameLogic.TIME_BETWEEN_CLICK_MILLI, showNotificationIntent);
   }
 }

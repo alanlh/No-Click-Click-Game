@@ -12,7 +12,7 @@ public class NumberFormatter {
   // I highly doubt anyone will get a quadrillion points.
   // Stored as array for easier access
   
-  private static final String MINUTE_SUFFIX = " min.";
+  private static final String MINUTE_SUFFIX = " more minutes";
   private static final long MILLISEC_PER_MINUTE = 60000;
   
   private static final int SUFFIX_RATIO = 1000;
@@ -68,7 +68,8 @@ public class NumberFormatter {
    * @return a String displaying the time in minutes
    */
   static String formatTimeMinutes(long time) {
-    String minutesLeft = String.valueOf(Math.ceil((double) time / (double) MILLISEC_PER_MINUTE));
+    String minutesLeft = String.valueOf((int)Math.ceil(
+      (double) time / (double) MILLISEC_PER_MINUTE));
     return minutesLeft + MINUTE_SUFFIX;
   }
   

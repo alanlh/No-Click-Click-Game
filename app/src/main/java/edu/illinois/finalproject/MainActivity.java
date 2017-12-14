@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     editor.putString(AccessKeys.getUserFirebaseKey(), userFirebaseKey);
     editor.putString(AccessKeys.getUsernameKey(), newUser.getUsername());
     editor.putLong(AccessKeys.getTotalScoreKey(), newUser.getTotalPoints());
-    editor.putLong(AccessKeys.getClickCountKey(), DEFAULT_STARTING_COUNTS);
+    editor.putLong(AccessKeys.getClickCountKey(), newUser.getClickCount());
     editor.putLong(AccessKeys.getLastClickKey(), newUser.getLastClickTime());
     editor.apply();
   }

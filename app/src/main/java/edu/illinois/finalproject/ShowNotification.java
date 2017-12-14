@@ -16,7 +16,8 @@ import android.support.v4.app.NotificationCompat;
 public class ShowNotification extends Service {
   
   public static final int NOTIFICATION_CODE = 0;
-  private final String NOTIFICATION_MESSAGE = "Thirty minutes is up! Click again!";
+  private final String NOTIFICATION_TITLE = "Click again!";
+  private final String NOTIFICATION_MESSAGE = "Thirty minutes is up!";
   
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
@@ -34,7 +35,8 @@ public class ShowNotification extends Service {
     NotificationCompat.Builder mDelayedNotification =
       new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.notification_icon)
-        .setContentTitle(NOTIFICATION_MESSAGE)
+        .setContentTitle(NOTIFICATION_TITLE)
+        .setContentText(NOTIFICATION_MESSAGE)
         .setContentIntent(resultPendingIntent)
         .setAutoCancel(true)
         .setSound(alarmSound);

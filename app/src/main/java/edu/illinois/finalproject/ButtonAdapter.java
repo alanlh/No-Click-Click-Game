@@ -1,6 +1,10 @@
 package edu.illinois.finalproject;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +28,6 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   
   private final int NUMBER_OF_BUTTONS = 100;
   
-  private final double MILLI_TO_SEC = 0.001;
   
   public ButtonAdapter(Context context, ButtonsActivity parent) {
     this.context = context;
@@ -49,14 +52,17 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   }
   
   @Override
-  public void onBindViewHolder(ViewHolder holder, final int position) {
+  public void onBindViewHolder(ViewHolder holder, int position) {
     // TODO: Replace with something that also sets color/font
-    holder.mGameButton.setText(NumberFormatter.formatNumber(currentButtonValue[position]));
+    final int index = position;
     
+    holder.mGameButton.setText(NumberFormatter.formatNumber(currentButtonValue[position]));
     holder.mGameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        parentActivity.startButtonClickProcess(position);
+        if (GameLogic.startButtonClickProcess(index)) {
+          parentActivity.startNotificationProcess();
+        }
       }
     });
   }
@@ -73,7 +79,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
    * @param position  The position for which the data has been retrieved
    */
   void setButtonValue(long timeStamp, int position) {
-    currentButtonValue[position] = calculateButtonTime(timeStamp);
+    currentButtonValue[position] = GameLogic.calculateButtonTime(timeStamp);
     notifyItemChanged(position);
   }
   
@@ -81,34 +87,6 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
       currentButtonValue[i]++;
     }
-  }
-  
-  /**
-   * Calculates the value to be displayed on the button by subtracting the timestamp value from
-   * the given date object. Caller can create the Date object so that if this method is called
-   * many times for the same purpose, all times are standardized.
-   *
-   * @param timeStampValue The value given on the timestamp of the button
-   * @param nowTime        The base time to be used.
-   * @return The time difference between now and the time stamp, in seconds.
-   */
-  long calculateButtonTime(long timeStampValue, long nowTime) {
-    long timeDifferenceMilli = nowTime - timeStampValue;
-    // Converts timeDifferenceMilli into seconds
-    return (long) ((double) timeDifferenceMilli * MILLI_TO_SEC);
-  }
-  
-  /**
-   * Wrapper method for calculateButttonTime. Creates a new Date object every time it is called
-   * Should not be used when called for a set of values, as there may be a discrepancy between
-   * the "now" Date objects.
-   *
-   * @param timeStampValue
-   * @return The time difference between now and the time stamp, in seconds.
-   */
-  long calculateButtonTime(long timeStampValue) {
-    long now = new Date().getTime();
-    return calculateButtonTime(timeStampValue, now);
   }
   
   public class ViewHolder extends RecyclerView.ViewHolder {

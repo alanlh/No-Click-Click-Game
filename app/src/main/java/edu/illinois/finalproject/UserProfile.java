@@ -32,6 +32,7 @@ public class UserProfile {
     lastClickTime = new Date(DEFAULT_LAST_CLICK_TIME).getTime();
   }
   
+  // Saving here for possible future usage.
   public UserProfile(String username, int points, int clickCount) {
     this.username = username;
     this.totalPoints = points;
@@ -57,14 +58,6 @@ public class UserProfile {
     return clickCount;
   }
   
-  public void setUsername(String username) {
-    this.username = username;
-  }
-  
-  public void addPoints(int points) {
-    this.totalPoints += points;
-  }
-  
   public double getAveragePoints() {
     return averagePoints;
   }
@@ -72,7 +65,6 @@ public class UserProfile {
   // Referenced:
   // https://beginnersbook.com/2013/12/java-arraylist-of-object-sort-example-comparable-and-
   // comparator/
-  
   public static Comparator<UserProfile> totalScoreCompare = new Comparator<UserProfile>() {
     @Override
     public int compare(UserProfile userProfile, UserProfile otherProfile) {
