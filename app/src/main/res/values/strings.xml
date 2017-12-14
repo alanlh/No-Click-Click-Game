@@ -8,5 +8,21 @@
     <string name="total_points_value">Total Points: %1$s</string>
     <string name="number_clicks_count">Number of Clicks: %1$s</string>
     <string name="average_click_value">Average Click Value: %1$s</string>
+
     <string name="title_activity_change_username">changeUsername</string>
+    <string name="buttons_tv_click_status_default">Click Status</string>
+    <string name="btn_game_default">Button</string>
+    <string name="tv_leaderboard_title">Leaderboard</string>
+    <string name="tv_total_points_text">Total Points:</string>
+    <string name="tv_click_count_text">Number of Clicks:</string>
+    <string name="tv_average_points_per_click_text">Average Points Per Click:</string>
+    <string name="btn_change_username_text">Change Username</string>
+    <string name="tv_username_title_text">Username Here</string>
+    <string name="tv_change_your_username_text">Change Your Username</string>
+    <string name="tv_new_username_here_hint">New Username Here</string>
+    <string name="btn_confirm_new_username_text">Confirm New Username</string>
+    <string name="btn_cancel_text">Cancel</string>
+    <string name="leaderboard_row_value_default">0</string>
+    <string name="leaderboard_row_username_default">Username</string>
+    <string name="leaderboard_row_rank_default">10</string>
 </resources>

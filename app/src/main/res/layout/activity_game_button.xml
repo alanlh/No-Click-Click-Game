@@ -18,7 +18,7 @@
         android:paddingLeft="@dimen/game_button_padding"
         android:paddingRight="@dimen/game_button_padding"
         android:paddingTop="@dimen/game_button_padding"
-        android:text="Button"
+        android:text="@string/btn_game_default"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -26,7 +26,7 @@ public class StatsActivity extends AppCompatActivity {
     localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
     setTextViews();
     
-    Button mChangeUsernameButton = (Button) findViewById(R.id.stats_btn_change_username);
+    Button mChangeUsernameButton = (Button) findViewById(R.id.stats_btn_change_username_text);
     mChangeUsernameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
