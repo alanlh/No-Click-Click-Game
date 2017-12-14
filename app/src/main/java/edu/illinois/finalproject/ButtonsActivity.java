@@ -22,30 +22,30 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-
 import java.util.Date;
 
+/**
+ * Activity containing the core of the game. Contains methods used to run the buttons.
+ */
 public class ButtonsActivity extends AppCompatActivity {
   
   private static final int NUMBER_OF_BUTTONS = 100;
   private final int MILLI_PER_SEC = 1000;
-  private final double MILLI_TO_SEC = 0.001;
   private final int ROW_LENGTH_PORTRAIT = 2;
   private final int ROW_LENGTH_LANDSCAPE = 5;
   
-  private final int MOST_RECENT_TIMESTAMP_ACCESS = 1;
+  private final int MOST_RECENT_TIMESTAMP_REQUEST_SIZE = 1;
   
-  private final String CLICK_AVAILABLE_MESSAGE = "Click!";
+  private final String CLICK_AVAILABLE_MESSAGE = "Click Now!";
   private final String RECENT_CLICK_FOUND = "It looks like you clicked recently. " +
     "You must wait for %s.";
   
   private final int PENDING_INTENT_CODE = 0;
   
   private final ButtonAdapter buttonAdapter = new ButtonAdapter(this, this);
-  
   private Thread stopwatchThread;
-  
   static SharedPreferences localData;
+  // Static because used in GameLogic
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -54,21 +54,17 @@ public class ButtonsActivity extends AppCompatActivity {
     
     localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
     
-    // TODO: Get Internet time, verify consistent with currentTime, record any inaccuracies, if
-    // no internet display so at the front.
-  
     // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using
     // -recyclerview-with-gridlayoutmanager-like-the
     final RecyclerView buttonsRecycler = (RecyclerView) findViewById(R.id.buttons_recycler);
     buttonsRecycler.setLayoutManager(new GridLayoutManager(this, determineRowLength()));
-  
+    
     buttonsRecycler.setAdapter(buttonAdapter);
-  
+    
     if (!GameLogic.hasInternetConnection(this)) {
       setErrorMessageStatus(GameLogic.NO_INTERNET_CONNECTION_MESSAGE);
     } else {
       setInitialMessageStatus();
-  
       addButtonChangeEventListeners();
     }
   }
@@ -76,6 +72,7 @@ public class ButtonsActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
+    // Retrieves button information again to ensure that the information is the most updated.
     getInitialButtonInformation();
     startButtonIncrement();
   }
@@ -83,6 +80,7 @@ public class ButtonsActivity extends AppCompatActivity {
   @Override
   protected void onPause() {
     super.onPause();
+    // Don't use when not needed.
     stopButtonIncrement();
   }
   
@@ -104,13 +102,13 @@ public class ButtonsActivity extends AppCompatActivity {
   
   /**
    * Sets a custom error message to be displayed at the top of the screen. At this point, does
-   * nothing else. Place to work on in future.
+   * nothing else. (In future, add a onClickListener to refresh.)
    *
    * @param message The message to be displayed.
    */
   private void setErrorMessageStatus(String message) {
     TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
-  
+    
     mStatusMessage.setText(message);
   }
   
@@ -131,7 +129,7 @@ public class ButtonsActivity extends AppCompatActivity {
       final int position = index;
       // Final because used in inner class.
       final Query LAST_TIMESTAMP_QUERY = individualButtonRef.orderByValue()
-        .limitToLast(MOST_RECENT_TIMESTAMP_ACCESS);
+        .limitToLast(MOST_RECENT_TIMESTAMP_REQUEST_SIZE);
       individualButtonRef.addListenerForSingleValueEvent(new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,6 +152,10 @@ public class ButtonsActivity extends AppCompatActivity {
     }
   }
   
+  /**
+   * Adds onClickListeners for each of the buttons. When a button is updated, notifies the
+   * ButtonAdapter.
+   */
   private void addButtonChangeEventListeners() {
     DatabaseReference buttonsListRef = MainActivity.DATABASE.getReference
       (AccessKeys.getButtonListRef());
@@ -200,6 +202,10 @@ public class ButtonsActivity extends AppCompatActivity {
   private void startButtonIncrement() {
     stopwatchThread = new Thread() {
       Runnable incrementAllButtons = new Runnable() {
+        /**
+         * Run on the main UI thread. Updates the button time displayed and notifies data set to
+         * be changed.
+         */
         @Override
         public void run() {
           buttonAdapter.incrementAllButtons();
@@ -207,6 +213,10 @@ public class ButtonsActivity extends AppCompatActivity {
         }
       };
       
+      /**
+       * Method that is called when thread is started. Calls a new Runnable to be run on the main
+       * UI thread.
+       */
       @Override
       public void run() {
         try {

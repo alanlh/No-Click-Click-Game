@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * Activity containing the user's personal statistics.
+ */
 public class StatsActivity extends AppCompatActivity {
   
   SharedPreferences localData;
@@ -35,15 +38,14 @@ public class StatsActivity extends AppCompatActivity {
   
   /**
    * Sets all TextViews in the Stats activity. Note: Player's point values are also stored
-   * locally. This way, user can still access statistics when not using internet. Done so in
-   * onResume rather than onCreate because of the change username dialog.
+   * locally. This way, user can still access statistics when not using internet.
    */
   private void setTextViews() {
-    // Sets username
     String username = localData.getString(AccessKeys.getUsernameKey(), DEFAULT_USERNAME);
     long totalPoints = localData.getLong(AccessKeys.getTotalScoreKey(), DEFAULT_POINTS_LONG);
     long clickCount = localData.getLong(AccessKeys.getClickCountKey(), DEFAULT_POINTS_LONG);
     double avgPoints = computeAveragePointsDouble(totalPoints, clickCount);
+    // Note: Average points is stored on Firebase but not locally.
     
     TextView mUsernameTextView = (TextView) findViewById(R.id.stats_tv_username);
     TextView mTotalPointsTextView = (TextView) findViewById(R.id.stats_tv_total_points);
@@ -68,10 +70,7 @@ public class StatsActivity extends AppCompatActivity {
    * @return The average points per click. Returns 0 if no clicks yet.
    */
   static double computeAveragePointsDouble(long totalPoints, long clickCount) {
-    if (clickCount == 0) {
-      return 0;
-    }
-    return (double) totalPoints / (double) clickCount;
+    return (clickCount == 0) ? 0 : ((double) totalPoints / (double) clickCount);
   }
   
   /**

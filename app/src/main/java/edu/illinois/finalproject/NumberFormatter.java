@@ -1,9 +1,9 @@
 package edu.illinois.finalproject;
 
 /**
- * Created by Alan Hu on 12/9/2017.
+ * Collection of methods used to format numbers and convert them into strings. Used to avoid
+ * having large numbers mess up formatting.
  */
-
 public class NumberFormatter {
   
   private static final int LARGE_NUMBER_LENGTH = 5; // For numbers over 1 million
@@ -68,7 +68,7 @@ public class NumberFormatter {
    * @return a String displaying the time in minutes
    */
   static String formatTimeMinutes(long time) {
-    String minutesLeft = String.valueOf((int)Math.ceil(
+    String minutesLeft = String.valueOf((int) Math.ceil(
       (double) time / (double) MILLISEC_PER_MINUTE));
     return minutesLeft + MINUTE_SUFFIX;
   }

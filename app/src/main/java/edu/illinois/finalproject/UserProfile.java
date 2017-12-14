@@ -4,9 +4,9 @@ import java.util.Comparator;
 import java.util.Date;
 
 /**
- * Created by Alan Hu on 11/27/2017.
+ * A UserProfile object, which forms the template for all user objects in Firebase. Contains
+ * methods for comparison.
  */
-
 public class UserProfile {
   
   private String username;
@@ -41,7 +41,6 @@ public class UserProfile {
     lastClickTime = new Date(DEFAULT_LAST_CLICK_TIME).getTime();
   }
   
-  // These methods could potentially be used in the final version, so I'm keeping it here.
   public String getUsername() {
     return username;
   }
@@ -65,6 +64,9 @@ public class UserProfile {
   // Referenced:
   // https://beginnersbook.com/2013/12/java-arraylist-of-object-sort-example-comparable-and-
   // comparator/
+  /**
+   * Compares two UserProfiles by total score. Allows UserProfiles to be sorted by total score.
+   */
   public static Comparator<UserProfile> totalScoreCompare = new Comparator<UserProfile>() {
     @Override
     public int compare(UserProfile userProfile, UserProfile otherProfile) {
@@ -73,6 +75,9 @@ public class UserProfile {
     }
   };
   
+  /**
+   * Compares two UserProfiles by average score. Allows UserProfiles to be sorted by average score.
+   */
   public static Comparator<UserProfile> averageScoreCompare = new Comparator<UserProfile>() {
     @Override
     public int compare(UserProfile userProfile, UserProfile otherProfile) {

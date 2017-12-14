@@ -1,6 +1,5 @@
 package edu.illinois.finalproject;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,8 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-
 import static android.content.Context.MODE_PRIVATE;
 
 public class ChangeUsernameDialog extends DialogFragment {
@@ -24,9 +21,10 @@ public class ChangeUsernameDialog extends DialogFragment {
   private final int MAX_USERNAME_LENGTH = 16;
   
   private final String EMPTY_USERNAME_MESSAGE = "You can't have an empty username!";
-  private final String USERNAME_TOO_LONG_MESSAGE = "Your username must be less than 17 characters" +
-    " long!";
+  private final String USERNAME_TOO_LONG_MESSAGE =
+    "Your username must be less than 17 characters long!";
   
+  // Referenced:
   // https://developer.android.com/guide/topics/ui/dialogs.html
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -40,33 +38,43 @@ public class ChangeUsernameDialog extends DialogFragment {
     EditText mChangeUsernameField = (EditText) dialog.findViewById(R.id.username_ev_change);
     mChangeUsernameField.setText(localData.getString(AccessKeys.getUsernameKey(), null));
     
+    setButtonOnClickListeners();
+    
+    builder.setView(dialog);
+    
+    return builder.create();
+  }
+  
+  /**
+   * Adds onClickListeners to the two buttons.
+   */
+  private void setButtonOnClickListeners() {
     Button mConfirmChangesButton = (Button) dialog.findViewById(R.id.username_btn_confirm);
     mConfirmChangesButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         EditText mChangeUsernameField = (EditText) dialog.findViewById(R.id.username_ev_change);
         String newUsername = mChangeUsernameField.getText().toString();
-        
+      
         if (validUsername(newUsername)) {
           updateUsername(newUsername);
+          // Notifies the StatsActivity parent that the username has changed.
           ((StatsActivity) ChangeUsernameDialog.this.getActivity())
             .refreshUsernameTextView(newUsername);
           ChangeUsernameDialog.this.getDialog().cancel();
         }
+        // Should do nothing if the username is invalid.
       }
     });
-    
+  
     Button mCancelButton = (Button) dialog.findViewById(R.id.username_btn_cancel);
     mCancelButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
+        // Simply closes the dialog.
         ChangeUsernameDialog.this.getDialog().cancel();
       }
     });
-    
-    builder.setView(dialog);
-    
-    return builder.create();
   }
   
   /**

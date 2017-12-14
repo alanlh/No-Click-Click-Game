@@ -1,23 +1,15 @@
 package edu.illinois.finalproject;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import java.util.Date;
-
 /**
- * Created by Alan Hu on 12/5/2017.
+ * Adapter used to configure all of the buttons.
  */
-
 public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder> {
   
   // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using-
@@ -53,7 +45,6 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
-    // TODO: Replace with something that also sets color/font
     final int index = position;
     
     holder.mGameButton.setText(NumberFormatter.formatNumber(currentButtonValue[position]));
@@ -83,6 +74,10 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     notifyItemChanged(position);
   }
   
+  /**
+   * Called by another thread to update the displayed button values every second by adding 1 to
+   * all the button values. Immediately followed by notifyDataSetChanged().
+   */
   void incrementAllButtons() {
     for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
       currentButtonValue[i]++;

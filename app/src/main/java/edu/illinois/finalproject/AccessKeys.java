@@ -1,13 +1,12 @@
 package edu.illinois.finalproject;
 
 /**
- * Created by Alan Hu on 12/9/2017.
- *
  * This class contains the keys of most SharedPreferences values and Firebase database locations.
  * A new class is used to keep track of strings more easily, avoid accidental duplicates, and
  * maintain consistency. Other widely used strings (namely, the app name) are stored here as well.
+ * KEY refers to a SharedPreference key.
+ * REF refers to a Firebase Reference key.
  */
-
 public class AccessKeys {
   
   private static final String APP_NAME = "No-Click Click Game";

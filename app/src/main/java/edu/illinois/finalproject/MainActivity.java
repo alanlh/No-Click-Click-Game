@@ -14,9 +14,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Date;
 // Here because setUpFirebase() uses it and setUpFirebase() should be commented out
 
+/**
+ * Launcher Activity for this app. Contains methods for setting up users, and navigating to other
+ * activities. Note: There are several commented out methods which should not be used.
+ */
 public class MainActivity extends AppCompatActivity {
-  
-  private final int DEFAULT_STARTING_COUNTS = 0;
   
   SharedPreferences localData;
   static final FirebaseDatabase DATABASE = FirebaseDatabase.getInstance();
@@ -27,11 +29,11 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     
     localData = getSharedPreferences(AccessKeys.getAppName(), MODE_PRIVATE);
-  
+    
     // A method that deletes SharedPreferences. Used while testing, so that sharedpreferences
     // from previous versions won't affect it.
 //    deleteSharedPreferenceData();
-  
+    
     // A method that sets up/deletes all the prereqs on Firebase without manually typing. I am
     // keeping keeping the code here, even though the entire thing will be commented out, for future
     // reference.
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     if (isNewUser()) {
       setUpNewUser();
     }
-  
+    
     Button mPlayButton = (Button) findViewById(R.id.main_button_play);
     Button mStatsButton = (Button) findViewById(R.id.main_btn_stats);
     Button mLeaderboardButton = (Button) findViewById(R.id.main_btn_leaderboard);
@@ -88,9 +90,7 @@ public class MainActivity extends AppCompatActivity {
     UserProfile newUser = new UserProfile();
     DatabaseReference newUserRef = userListRef.push();
     newUserRef.setValue(newUser);
-    
     String userFirebaseKey = newUserRef.getKey();
-    
     SharedPreferences.Editor editor = localData.edit();
     
     // Actual type doesn't really matter. Only existence.
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
   
   // THE FOLLOWING METHODS WERE USED FOR TESTING PURPOSES ONLY. COMMENTED OUT AS A SECOND SAFEGUARD
   // TO PREVENT THEM FROM BEING RUN.
-  
+
 //  /**
 //   * Initializes the database. Should never be called after the initial run, unless the database
 //   * has been emptied
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 //    DATABASE.getReference(AccessKeys.getUserListRef());
 //    setUpNewUser();
 //  }
-  
+
 //  /**
 //   * KEEP THIS COMMENTED OUT. DELETES ENTIRE FIREBASE DATABASE
 //   */
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 //    DatabaseReference rootReference = DATABASE.getReference();
 //    rootReference.setValue(null);
 //  }
-  
+
 //  /**
 //   * Deletes all SharedPreferences data. Should not be called in final app. Needed because
 //   * SharedPreferences data is saved even when the app is updated.

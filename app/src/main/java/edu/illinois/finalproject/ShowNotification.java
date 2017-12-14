@@ -10,9 +10,8 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 /**
- * Created by Alan Hu on 12/12/2017.
+ * Sets up a notification to appear after thirty minutes after the user presses a button.
  */
-
 public class ShowNotification extends Service {
   
   public static final int NOTIFICATION_CODE = 0;

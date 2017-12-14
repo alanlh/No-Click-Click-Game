@@ -17,14 +17,13 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
- * Created by Alan Hu on 12/13/2017.
+ * Collection of methods to handle when a user clicks a button.
  */
-
 public class GameLogic {
   // Referenced for SharedPreferences static workaround:
   // https://stackoverflow.com/questions/3806051/accessing-sharedpreferences-through-static-methods
-  
   static SharedPreferences localData = ButtonsActivity.localData;
+  
   static final int TIME_BETWEEN_CLICK_MILLI = 1800000; // Should be 1800000
   private static final double MILLI_TO_SEC = 0.001;
   private static final int BUTTON_PRESS_DELAY_MILLI = 750;
@@ -36,8 +35,18 @@ public class GameLogic {
   static final String NO_INTERNET_CONNECTION_MESSAGE =
     "Whoops. Looks like your internet isn't connected.";
   
+  /**
+   * Called when a button is pressed. Determines whether the button press is valid (i.e. there is
+   * internet connection and thirty minutes has passed since the last button press). If so, adds
+   * calls other methods to handle appropriate processes. In the future, should get internet time
+   * instead of relying on user's device time.
+   *
+   * @param context  A ButtonActivity context object, because certain methods need it.
+   * @param position The position of the button pressed.
+   * @return Whether the button press was successful.
+   */
   static boolean startButtonClickProcess(Context context, final int position) {
-    final long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
+    final long pressTime = new Date().getTime();
     
     boolean clickAvailable = (remainingTimeUntilClick(pressTime) == CLICK_AVAILABLE_STATE);
     
@@ -46,6 +55,8 @@ public class GameLogic {
       
       // Referenced:
       // https://stackoverflow.com/questions/3072173/how-to-call-a-method-after-a-delay-in-android
+      // Points aren't evaluated until a short delay, in case two people press the same button at
+      // the same time. Gives time for both people to add timestamps to the button.
       final Handler handler = new Handler();
       handler.postDelayed(new Runnable() {
         @Override
@@ -53,7 +64,6 @@ public class GameLogic {
           evaluatePoints(pressTime, position);
         }
       }, BUTTON_PRESS_DELAY_MILLI);
-      
     }
     return clickAvailable;
   }
@@ -68,10 +78,10 @@ public class GameLogic {
     // Referenced
     // https://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
     
-    ConnectivityManager cm =
+    ConnectivityManager connectivityManager =
       (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     
-    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+    NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
     boolean isConnected = (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
     if (!isConnected) {
       Toast.makeText(context, NO_INTERNET_CONNECTION_MESSAGE, Toast.LENGTH_LONG).show();
@@ -83,7 +93,7 @@ public class GameLogic {
    * Calculates the time difference milliseconds, until the button can be pressed again.
    *
    * @param pressTime The time at which the user pressed the button.
-   * @return a postive integer if there is remaining time, -1 if time is up.
+   * @return a positive integer if there is remaining time, -1 if time is up.
    */
   static long remainingTimeUntilClick(long pressTime) {
     long lastClickTime = localData.getLong(AccessKeys.getLastClickKey(), DEFAULT_VALUE);
@@ -94,7 +104,7 @@ public class GameLogic {
   }
   
   /**
-   * Adds the current time to the button.
+   * Adds the current time to the appropriate button.
    *
    * @param time     The time stamp to be added to the button
    * @param position The button to which the timestamp is to be added
@@ -105,6 +115,15 @@ public class GameLogic {
     buttonRef.push().setValue(time);
   }
   
+  /**
+   * Evaluates the number of points the user should earn after pressing a button. Checks the most
+   * recent few timestamps from the button in question, and looks for the timestamp immediately
+   * preceding the user's time stamp. Calculates the time difference and adds the correct amount
+   * of points to the user.
+   *
+   * @param pressTime The user's press time
+   * @param position  The button's index
+   */
   static void evaluatePoints(final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
       .child(AccessKeys.getButtonIRef() + position).orderByValue()
@@ -135,6 +154,16 @@ public class GameLogic {
     });
   }
   
+  /**
+   * Finds the lastClickTime immediately preceding the user's click time, and returns it. If the
+   * player's clickTime is the first (which should almost never happen), returns the player's
+   * time. (In other words, the player earns 0 points.)
+   *
+   * @param lastClickTimes  An array of timestamps representing the most recent few timestamps on
+   *                        a button.
+   * @param playerClickTime The player's click time
+   * @return The timestamp immediately preceding the player's timestamp.
+   */
   private static long findPreviousClick(long[] lastClickTimes, long playerClickTime) {
     Arrays.sort(lastClickTimes);
     
