@@ -1,6 +1,11 @@
 package edu.illinois.finalproject;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Handler;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -8,6 +13,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -21,21 +27,56 @@ public class GameLogic {
   static SharedPreferences localData = ButtonsActivity.localData;
   static final int TIME_BETWEEN_CLICK_MILLI = 1800000; // Should be 1800000
   private static final double MILLI_TO_SEC = 0.001;
+  private static final int BUTTON_PRESS_DELAY_MILLI = 750;
+  private static final int DETAILED_BUTTON_TIMESTAMP_REQUEST = 10;
+  // Highly unlikely that more people press the same button at the same time.
   private static final int DEFAULT_VALUE = 0;
   static final int CLICK_AVAILABLE_STATE = -1;
   
-  static boolean startButtonClickProcess(int position) {
-    long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
+  static final String NO_INTERNET_CONNECTION_MESSAGE =
+    "Whoops. Looks like your internet isn't connected.";
+  
+  static boolean startButtonClickProcess(Context context, final int position) {
+    final long pressTime = new Date().getTime(); // TODO: REPLACE WITH INTERNET TIME
     
     boolean clickAvailable = (remainingTimeUntilClick(pressTime) == CLICK_AVAILABLE_STATE);
     
-    if (clickAvailable) {
-      evaluatePoints(pressTime, position); // TODO: Create timer instead, and put date back first
+    if (clickAvailable && hasInternetConnection(context)) {
       addDateToButton(pressTime, position);
+      
+      // Referenced:
+      // https://stackoverflow.com/questions/3072173/how-to-call-a-method-after-a-delay-in-android
+      final Handler handler = new Handler();
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          evaluatePoints(pressTime, position);
+        }
+      }, BUTTON_PRESS_DELAY_MILLI);
+      
     }
-//    cannotClickMessage();
-    
     return clickAvailable;
+  }
+  
+  /**
+   * Checks the device's internet connection status
+   *
+   * @param context The context from which the
+   * @return Whether or not the device has internet
+   */
+  static boolean hasInternetConnection(Context context) {
+    // Referenced
+    // https://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
+    
+    ConnectivityManager cm =
+      (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+    boolean isConnected = (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+    if (!isConnected) {
+      Toast.makeText(context, NO_INTERNET_CONNECTION_MESSAGE, Toast.LENGTH_LONG).show();
+    }
+    return isConnected;
   }
   
   /**
@@ -66,15 +107,20 @@ public class GameLogic {
   
   static void evaluatePoints(final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
-      .child(AccessKeys.getButtonIRef() + position).orderByValue().limitToLast(1);
+      .child(AccessKeys.getButtonIRef() + position).orderByValue()
+      .limitToLast(DETAILED_BUTTON_TIMESTAMP_REQUEST);
     
     LAST_TIME_QUERY.addListenerForSingleValueEvent(new ValueEventListener() {
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
-        long lastClickTime = 0;
+        long[] lastClickTimes = new long[(int) dataSnapshot.getChildrenCount()];
+        int counter = 0;
         for (DataSnapshot timeSnapshot : dataSnapshot.getChildren()) {
-          lastClickTime = timeSnapshot.getValue(Long.class);
+          lastClickTimes[counter] = timeSnapshot.getValue(Long.class);
+          counter++;
         }
+        
+        long lastClickTime = findPreviousClick(lastClickTimes, pressTime);
         
         long timeDifference = calculateButtonTime(lastClickTime, pressTime);
         addPointsToPlayer(timeDifference, pressTime); // TODO: Change to creating a new thread
@@ -87,6 +133,17 @@ public class GameLogic {
         
       }
     });
+  }
+  
+  private static long findPreviousClick(long[] lastClickTimes, long playerClickTime) {
+    Arrays.sort(lastClickTimes);
+    
+    for (int i = 0; i < lastClickTimes.length; i++) {
+      if (lastClickTimes[i] == playerClickTime) {
+        return lastClickTimes[i - 1];
+      }
+    }
+    return lastClickTimes[0];
   }
   
   /**
@@ -146,5 +203,4 @@ public class GameLogic {
     long now = new Date().getTime();
     return calculateButtonTime(timeStampValue, now);
   }
-  
 }

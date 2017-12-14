@@ -57,15 +57,20 @@ public class ButtonsActivity extends AppCompatActivity {
     // TODO: Get Internet time, verify consistent with currentTime, record any inaccuracies, if
     // no internet display so at the front.
   
-    setMessageStatus();
-    
     // Referenced: https://stackoverflow.com/questions/40587168/simple-android-grid-example-using
     // -recyclerview-with-gridlayoutmanager-like-the
     final RecyclerView buttonsRecycler = (RecyclerView) findViewById(R.id.buttons_recycler);
     buttonsRecycler.setLayoutManager(new GridLayoutManager(this, determineRowLength()));
-    
+  
     buttonsRecycler.setAdapter(buttonAdapter);
-    addButtonChangeEventListeners();
+  
+    if (!GameLogic.hasInternetConnection(this)) {
+      setErrorMessageStatus(GameLogic.NO_INTERNET_CONNECTION_MESSAGE);
+    } else {
+      setInitialMessageStatus();
+  
+      addButtonChangeEventListeners();
+    }
   }
   
   @Override
@@ -85,7 +90,7 @@ public class ButtonsActivity extends AppCompatActivity {
    * Sets the message to be displayed at the top of the screen, depending on the last click time.
    * If the user can click, then says so. Otherwise, states remaining time.
    */
-  private void setMessageStatus() {
+  private void setInitialMessageStatus() {
     TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
     long currentTime = new Date().getTime();
     long remainingTime = GameLogic.remainingTimeUntilClick(currentTime);
@@ -95,6 +100,18 @@ public class ButtonsActivity extends AppCompatActivity {
       mStatusMessage.setText(String.format(RECENT_CLICK_FOUND,
         NumberFormatter.formatTimeMinutes(remainingTime)));
     }
+  }
+  
+  /**
+   * Sets a custom error message to be displayed at the top of the screen. At this point, does
+   * nothing else. Place to work on in future.
+   *
+   * @param message The message to be displayed.
+   */
+  private void setErrorMessageStatus(String message) {
+    TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
+  
+    mStatusMessage.setText(message);
   }
   
   /**

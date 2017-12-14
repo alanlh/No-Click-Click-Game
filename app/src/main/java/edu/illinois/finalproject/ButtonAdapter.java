@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,7 +28,6 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
   private long[] currentButtonValue;
   
   private final int NUMBER_OF_BUTTONS = 100;
-  
   
   public ButtonAdapter(Context context, ButtonsActivity parent) {
     this.context = context;
@@ -60,7 +60,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     holder.mGameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (GameLogic.startButtonClickProcess(index)) {
+        if (GameLogic.startButtonClickProcess(context, index)) {
           parentActivity.startNotificationProcess();
         }
       }

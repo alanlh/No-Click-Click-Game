@@ -35,8 +35,10 @@ public class LeaderboardActivity extends AppCompatActivity {
     
     leaderboardRecycler.setAdapter(leaderboardAdapter);
     
-    getTopScoreData();
-    getAverageScoreData();
+    if (GameLogic.hasInternetConnection(this)) {
+      getTopScoreData();
+      getAverageScoreData();
+    }
   }
   
   private void getTopScoreData() {
