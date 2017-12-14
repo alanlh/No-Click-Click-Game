@@ -64,7 +64,7 @@ public class ButtonsActivity extends AppCompatActivity {
     if (!GameLogic.hasInternetConnection(this)) {
       setErrorMessageStatus(GameLogic.NO_INTERNET_CONNECTION_MESSAGE);
     } else {
-      setInitialMessageStatus();
+      setDefaultMessageStatus();
       addButtonChangeEventListeners();
     }
   }
@@ -88,7 +88,7 @@ public class ButtonsActivity extends AppCompatActivity {
    * Sets the message to be displayed at the top of the screen, depending on the last click time.
    * If the user can click, then says so. Otherwise, states remaining time.
    */
-  private void setInitialMessageStatus() {
+  void setDefaultMessageStatus() {
     TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
     long currentTime = new Date().getTime();
     long remainingTime = GameLogic.remainingTimeUntilClick(currentTime);

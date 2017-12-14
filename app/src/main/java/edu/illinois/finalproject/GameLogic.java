@@ -34,6 +34,7 @@ public class GameLogic {
   
   static final String NO_INTERNET_CONNECTION_MESSAGE =
     "Whoops. Looks like your internet isn't connected.";
+  static final String POINTS_EARNED_MESSAGE = "You just earned %s points!";
   
   /**
    * Called when a button is pressed. Determines whether the button press is valid (i.e. there is
@@ -45,7 +46,7 @@ public class GameLogic {
    * @param position The position of the button pressed.
    * @return Whether the button press was successful.
    */
-  static boolean startButtonClickProcess(Context context, final int position) {
+  static boolean startButtonClickProcess(final Context context, final int position) {
     final long pressTime = new Date().getTime();
     
     boolean clickAvailable = (remainingTimeUntilClick(pressTime) == CLICK_AVAILABLE_STATE);
@@ -61,7 +62,7 @@ public class GameLogic {
       handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-          evaluatePoints(pressTime, position);
+          evaluatePoints(context, pressTime, position);
         }
       }, BUTTON_PRESS_DELAY_MILLI);
     }
@@ -124,7 +125,7 @@ public class GameLogic {
    * @param pressTime The user's press time
    * @param position  The button's index
    */
-  static void evaluatePoints(final long pressTime, int position) {
+  static void evaluatePoints(final Context context, final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
       .child(AccessKeys.getButtonIRef() + position).orderByValue()
       .limitToLast(DETAILED_BUTTON_TIMESTAMP_REQUEST);
@@ -142,7 +143,8 @@ public class GameLogic {
         long lastClickTime = findPreviousClick(lastClickTimes, pressTime);
         
         long timeDifference = calculateButtonTime(lastClickTime, pressTime);
-        addPointsToPlayer(timeDifference, pressTime); // TODO: Change to creating a new thread
+        addPointsToPlayer(context, timeDifference, pressTime); // TODO: Change to creating a new
+        // thread
         LAST_TIME_QUERY.removeEventListener(this);
         // Only want events to trigger once.
       }
@@ -177,12 +179,17 @@ public class GameLogic {
   
   /**
    * Adds a number of points to the user, updating both the total points, click count, and last
-   * pressed values in SharedPreferences and Firebase.
+   * pressed values in SharedPreferences and Firebase. Also displays a toast with the amount of
+   * points earned.
    *
    * @param pointValue The number of points to be added
    * @param pressTime  The time at which the user just pressed a button
    */
-  private static void addPointsToPlayer(long pointValue, long pressTime) {
+  private static void addPointsToPlayer(Context context, long pointValue, long pressTime) {
+    String pointValueAsString = NumberFormatter.formatNumber(pointValue);
+    Toast.makeText(context, String.format(POINTS_EARNED_MESSAGE, pointValueAsString),
+      Toast.LENGTH_LONG).show();
+  
     long currentPoints = localData.getLong(AccessKeys.getTotalScoreKey(), DEFAULT_VALUE);
     long currentClickCount = localData.getLong(AccessKeys.getClickCountKey(), DEFAULT_VALUE);
     
