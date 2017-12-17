@@ -10,9 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Display;
-import android.view.Surface;
-import android.view.WindowManager;
+import android.util.DisplayMetrics;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -34,11 +32,17 @@ public class ButtonsActivity extends AppCompatActivity {
   private final int ROW_LENGTH_PORTRAIT = 2;
   private final int ROW_LENGTH_LANDSCAPE = 5;
   
+  private final int MIN_BUTTON_WIDTH_PIXELS = 250; // TODO: Modify as needed.
+  
+  
   private final int MOST_RECENT_TIMESTAMP_REQUEST_SIZE = 1;
   
   private final String CLICK_AVAILABLE_MESSAGE = "Click Now!";
-  private final String RECENT_CLICK_FOUND = "It looks like you clicked recently. " +
+  private final String RECENT_CLICK_FOUND_MESSAGE = "It looks like you clicked recently. " +
     "You must wait for %s.";
+  private final String FIREBASE_ERROR_MESAGE = "Can't connect to database. Try reloading?";
+  private final String NO_INTERNET_MESSAGE = "It seems like you're not connected to the Internet.";
+  private final String STOPWATCH_CRASHED_MESSAGE = "Uh oh. The stopwatch crashed. Try reloading?";
   
   private final int PENDING_INTENT_CODE = 0;
   
@@ -91,11 +95,11 @@ public class ButtonsActivity extends AppCompatActivity {
   void setDefaultMessageStatus() {
     TextView mStatusMessage = (TextView) findViewById(R.id.buttons_tv_click_status);
     long currentTime = new Date().getTime();
-    long remainingTime = GameLogic.remainingTimeUntilClick(currentTime);
+    long remainingTime = GameLogic.remainingTimeUntilClick(getApplicationContext(), currentTime);
     if (remainingTime == GameLogic.CLICK_AVAILABLE_STATE) {
       mStatusMessage.setText(CLICK_AVAILABLE_MESSAGE);
     } else {
-      mStatusMessage.setText(String.format(RECENT_CLICK_FOUND,
+      mStatusMessage.setText(String.format(RECENT_CLICK_FOUND_MESSAGE,
         NumberFormatter.formatTimeMinutes(remainingTime)));
     }
   }
@@ -146,7 +150,7 @@ public class ButtonsActivity extends AppCompatActivity {
         
         @Override
         public void onCancelled(DatabaseError databaseError) {
-          // TODO: Error connecting?
+          setErrorMessageStatus(FIREBASE_ERROR_MESAGE);
         }
       });
     }
@@ -190,7 +194,7 @@ public class ButtonsActivity extends AppCompatActivity {
         
         @Override
         public void onCancelled(DatabaseError databaseError) {
-          // TODO: FIREBASE ERROR?
+          setErrorMessageStatus(FIREBASE_ERROR_MESAGE);
         }
       });
     }
@@ -225,7 +229,7 @@ public class ButtonsActivity extends AppCompatActivity {
             runOnUiThread(incrementAllButtons);
           }
         } catch (InterruptedException e) {
-          // TODO: ERROR MESSAGE
+          setErrorMessageStatus(STOPWATCH_CRASHED_MESSAGE);
         }
       }
     };
@@ -249,14 +253,20 @@ public class ButtonsActivity extends AppCompatActivity {
     // Referenced for getting device orientation:
     // https://stackoverflow.com/questions/5112118/how-to-detect-orientation-of-android-device
     final Context context = ButtonsActivity.this;
-    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
-      .getDefaultDisplay();
-    int rotation = display.getRotation();
+//    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
+//      .getDefaultDisplay();
+//    int rotation = display.getRotation();
     
-    if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
-      return ROW_LENGTH_PORTRAIT;
-    }
-    return ROW_LENGTH_LANDSCAPE;
+    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    
+    int width = displayMetrics.widthPixels;
+    
+    return Math.max(width / MIN_BUTTON_WIDTH_PIXELS, 1);
+
+//    if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
+//      return ROW_LENGTH_PORTRAIT;
+//    }
+//    return ROW_LENGTH_LANDSCAPE;
   }
   
   /**

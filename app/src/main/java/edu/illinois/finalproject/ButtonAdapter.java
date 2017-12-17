@@ -51,9 +51,8 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
     holder.mGameButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (GameLogic.startButtonClickProcess(context, index)) {
+        if (GameLogic.startButtonClickProcess(parentActivity, context, index)) {
           parentActivity.startNotificationProcess();
-          parentActivity.setDefaultMessageStatus();
         }
       }
     });

@@ -22,7 +22,7 @@ import java.util.Date;
 public class GameLogic {
   // Referenced for SharedPreferences static workaround:
   // https://stackoverflow.com/questions/3806051/accessing-sharedpreferences-through-static-methods
-  static SharedPreferences localData = ButtonsActivity.localData;
+  static SharedPreferences localData;
   
   static final int TIME_BETWEEN_CLICK_MILLI = 1800000; // Should be 1800000
   private static final double MILLI_TO_SEC = 0.001;
@@ -42,14 +42,17 @@ public class GameLogic {
    * calls other methods to handle appropriate processes. In the future, should get internet time
    * instead of relying on user's device time.
    *
-   * @param context  A ButtonActivity context object, because certain methods need it.
-   * @param position The position of the button pressed.
+   * @param parentActivity A ButtonActivity object, in order to update status message at the
+   *                       correct time
+   * @param context        A ButtonActivity context object, because certain methods need it.
+   * @param position       The position of the button pressed.
    * @return Whether the button press was successful.
    */
-  static boolean startButtonClickProcess(final Context context, final int position) {
+  static boolean startButtonClickProcess(final ButtonsActivity parentActivity,
+                                         final Context context, final int position) {
     final long pressTime = new Date().getTime();
     
-    boolean clickAvailable = (remainingTimeUntilClick(pressTime) == CLICK_AVAILABLE_STATE);
+    boolean clickAvailable = (remainingTimeUntilClick(context, pressTime) == CLICK_AVAILABLE_STATE);
     
     if (clickAvailable && hasInternetConnection(context)) {
       addDateToButton(pressTime, position);
@@ -62,7 +65,7 @@ public class GameLogic {
       handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-          evaluatePoints(context, pressTime, position);
+          evaluatePoints(parentActivity, context, pressTime, position);
         }
       }, BUTTON_PRESS_DELAY_MILLI);
     }
@@ -93,10 +96,12 @@ public class GameLogic {
   /**
    * Calculates the time difference milliseconds, until the button can be pressed again.
    *
+   * @param context   Method context in order to access SharedPreferences data.
    * @param pressTime The time at which the user pressed the button.
    * @return a positive integer if there is remaining time, -1 if time is up.
    */
-  static long remainingTimeUntilClick(long pressTime) {
+  static long remainingTimeUntilClick(Context context, long pressTime) {
+    localData = context.getSharedPreferences(AccessKeys.getAppName(), Context.MODE_PRIVATE);
     long lastClickTime = localData.getLong(AccessKeys.getLastClickKey(), DEFAULT_VALUE);
     
     long remainingTime = lastClickTime + TIME_BETWEEN_CLICK_MILLI - pressTime;
@@ -125,7 +130,8 @@ public class GameLogic {
    * @param pressTime The user's press time
    * @param position  The button's index
    */
-  static void evaluatePoints(final Context context, final long pressTime, int position) {
+  static void evaluatePoints(final ButtonsActivity parentActivity, final Context context,
+                             final long pressTime, int position) {
     final Query LAST_TIME_QUERY = MainActivity.DATABASE.getReference(AccessKeys.getButtonListRef())
       .child(AccessKeys.getButtonIRef() + position).orderByValue()
       .limitToLast(DETAILED_BUTTON_TIMESTAMP_REQUEST);
@@ -143,8 +149,7 @@ public class GameLogic {
         long lastClickTime = findPreviousClick(lastClickTimes, pressTime);
         
         long timeDifference = calculateButtonTime(lastClickTime, pressTime);
-        addPointsToPlayer(context, timeDifference, pressTime); // TODO: Change to creating a new
-        // thread
+        addPointsToPlayer(parentActivity, context, timeDifference, pressTime);
         LAST_TIME_QUERY.removeEventListener(this);
         // Only want events to trigger once.
       }
@@ -185,11 +190,14 @@ public class GameLogic {
    * @param pointValue The number of points to be added
    * @param pressTime  The time at which the user just pressed a button
    */
-  private static void addPointsToPlayer(Context context, long pointValue, long pressTime) {
+  private static void addPointsToPlayer(ButtonsActivity parentActivity, Context context,
+                                        long pointValue, long pressTime) {
+    localData = context.getSharedPreferences(AccessKeys.getAppName(), Context.MODE_PRIVATE);
+    
     String pointValueAsString = NumberFormatter.formatNumber(pointValue);
     Toast.makeText(context, String.format(POINTS_EARNED_MESSAGE, pointValueAsString),
       Toast.LENGTH_LONG).show();
-  
+    
     long currentPoints = localData.getLong(AccessKeys.getTotalScoreKey(), DEFAULT_VALUE);
     long currentClickCount = localData.getLong(AccessKeys.getClickCountKey(), DEFAULT_VALUE);
     
@@ -201,7 +209,9 @@ public class GameLogic {
     editor.putLong(AccessKeys.getClickCountKey(), currentClickCount);
     editor.putLong(AccessKeys.getLastClickKey(), pressTime);
     editor.apply();
-    
+  
+    parentActivity.setDefaultMessageStatus();
+  
     String userId = localData.getString(AccessKeys.getUserFirebaseKey(), null);
     DatabaseReference userPointRef
       = MainActivity.DATABASE.getReference(AccessKeys.getUserListRef()).child(userId);
