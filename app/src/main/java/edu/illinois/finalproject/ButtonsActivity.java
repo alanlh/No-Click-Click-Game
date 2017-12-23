@@ -21,6 +21,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
+import java.util.concurrent.RunnableFuture;
 
 /**
  * Activity containing the core of the game. Contains methods used to run the buttons.
@@ -34,15 +35,14 @@ public class ButtonsActivity extends AppCompatActivity {
   
   private final int MIN_BUTTON_WIDTH_PIXELS = 250; // TODO: Modify as needed.
   
-  
   private final int MOST_RECENT_TIMESTAMP_REQUEST_SIZE = 1;
   
   private final String CLICK_AVAILABLE_MESSAGE = "Click Now!";
   private final String RECENT_CLICK_FOUND_MESSAGE = "It looks like you clicked recently. " +
     "You must wait for %s.";
   private final String FIREBASE_ERROR_MESAGE = "Can't connect to database. Try reloading?";
-  private final String NO_INTERNET_MESSAGE = "It seems like you're not connected to the Internet.";
   private final String STOPWATCH_CRASHED_MESSAGE = "Uh oh. The stopwatch crashed. Try reloading?";
+  private final int MESSAGE_UPDATE_FREQUENCY = 10;
   
   private final int PENDING_INTENT_CODE = 0;
   
@@ -217,6 +217,20 @@ public class ButtonsActivity extends AppCompatActivity {
         }
       };
       
+      Runnable updateMessageStatus = new Runnable() {
+        @Override
+        public void run() {
+          setDefaultMessageStatus();
+        }
+      };
+      
+      Runnable setStopwatchCrashedMessage = new Runnable() {
+        @Override
+        public void run() {
+          setErrorMessageStatus(STOPWATCH_CRASHED_MESSAGE);
+        }
+      };
+      
       /**
        * Method that is called when thread is started. Calls a new Runnable to be run on the main
        * UI thread.
@@ -224,12 +238,17 @@ public class ButtonsActivity extends AppCompatActivity {
       @Override
       public void run() {
         try {
+          int timeCounter = 0;
           while (!this.isInterrupted()) {
             Thread.sleep(MILLI_PER_SEC);
             runOnUiThread(incrementAllButtons);
+            timeCounter ++;
+            if (timeCounter % MESSAGE_UPDATE_FREQUENCY == 0) {
+              runOnUiThread(updateMessageStatus);
+            }
           }
         } catch (InterruptedException e) {
-          setErrorMessageStatus(STOPWATCH_CRASHED_MESSAGE);
+          runOnUiThread(setStopwatchCrashedMessage);
         }
       }
     };
