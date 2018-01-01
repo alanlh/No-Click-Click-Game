@@ -134,7 +134,9 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     int rank = position - titlePosition;
     int rankIndex = rank - 1;
     holder.mRank.setText(String.valueOf(rank));
-    
+  
+    holder.mTitle.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
+  
     if (scoreType.equals(AccessKeys.getTotalScoreRef())) {
       String username = topTotalScorers[rankIndex].getUsername();
       String formattedScore = NumberFormatter.formatNumber(topTotalScorers[rankIndex]

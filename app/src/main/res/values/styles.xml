@@ -12,4 +12,33 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+    <style name="MenuButtonsBase">
+        <item name="android:background">@drawable/main_button_background</item>
+        <item name="android:textColor">@color/colorMainButtonText</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="MainActivityButtons" parent="MenuButtonsBase">
+
+        <item name="android:textSize">@dimen/main_button_text_size</item>
+        <item name="android:paddingBottom">@dimen/main_button_padding</item>
+        <item name="android:paddingTop">@dimen/main_button_padding</item>
+        <item name="android:paddingLeft">@dimen/main_button_padding</item>
+        <item name="android:paddingRight">@dimen/main_button_padding</item>
+        <item name="android:layout_marginLeft">@dimen/main_button_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/main_button_horizontal_margin</item>
+        <item name="android:layout_marginTop">@dimen/main_button_vertical_margin</item>
+        <item name="android:layout_marginBottom">@dimen/main_button_vertical_margin</item>
+    </style>
+
+    <style name="DialogButtons" parent="MenuButtonsBase">
+        <item name="android:textSize">@dimen/dialog_button_text_size</item>
+
+        <item name="android:paddingBottom">@dimen/dialog_button_padding</item>
+        <item name="android:paddingTop">@dimen/dialog_button_padding</item>
+        <item name="android:paddingLeft">@dimen/dialog_button_padding</item>
+        <item name="android:paddingRight">@dimen/dialog_button_padding</item>
+    </style>
+
 </resources>
